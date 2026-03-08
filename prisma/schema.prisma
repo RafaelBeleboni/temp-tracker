@@ -1,0 +1,85 @@
+// Este é seu arquivo de schema Prisma,
+// aprenda mais em: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ============= MODELOS DO SISTEMA =============
+
+model Temperatura {
+  id Int @id @default(autoincrement())
+  temperatura Float
+  createdAt DateTime @default(now())
+  deviceId String? @default("web-dashboard")
+}
+
+// ============= MODELOS NEXTAUTH.JS =============
+
+model User {
+  // Campos básicos do usuário
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?  // Senha para login tradicional
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relações com NextAuth.js
+  accounts      Account[]  // Contas OAuth (Google, Microsoft, etc.)
+  sessions      Session[]  // Sessões ativas do usuário
+}
+
+model Account {
+  // Contas OAuth de terceiros
+  id                String  @id @default(cuid())
+  userId            String    // Referência ao User
+  type              String    // Tipo de conta (oauth, credentials)
+  provider          String    // Provider (google, github, etc.)
+  providerAccountId  String    // ID do usuário no provider
+  
+  // Tokens OAuth (pode ser longo, mas SQLite usa String)
+  refresh_token     String?   // Token para renovar acesso
+  access_token      String?   // Token de acesso atual
+  expires_at        Int?      // Quando o token expira
+  token_type        String?   // Tipo do token (Bearer, etc.)
+  scope             String?   // Escopos de permissão
+  id_token          String?   // Token JWT do ID
+  session_state     String?   // Estado da sessão OAuth
+
+  // Relacionamento
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Um usuário não pode ter duas contas iguais do mesmo provider
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  // Sessões ativas dos usuários
+  id           String   @id @default(cuid())
+  sessionToken String   @unique  // Token único da sessão
+  userId       String    // Referência ao User
+  expires      DateTime  // Quando a sessão expira
+  
+  // Relacionamento
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  // Tokens para verificação de email
+  identifier String    // Email do usuário
+  token      String    @unique  // Token único
+  expires    DateTime  // Quando o token expira
+  
+  // Garante que não tenha tokens duplicados para o mesmo email
+  @@unique([identifier, token])
+}
