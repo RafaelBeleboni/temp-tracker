@@ -340,7 +340,7 @@ export function DashboardClient({ session }: DashboardClientProps) {
                         }
                         return formatDateTime(value as string)
                       }}
-                      formatter={(value: any, name?: string) => {
+                      formatter={(value: any, name?: any) => {
                         if (name === 'Temperatura') {
                           return [`${value}°C`, 'Temperatura']
                         }

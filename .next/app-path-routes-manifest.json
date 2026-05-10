@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/page": "/admin",
+  "/api/admin/clear-temperatures/route": "/api/admin/clear-temperatures",
+  "/api/admin/generate-token/route": "/api/admin/generate-token",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/api/relatorio/route": "/api/relatorio",
+  "/api/temperaturas/route": "/api/temperaturas",
+  "/dashboard/page": "/dashboard",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/page": "/"
+}
