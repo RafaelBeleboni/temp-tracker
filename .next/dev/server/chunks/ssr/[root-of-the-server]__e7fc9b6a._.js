@@ -28,7 +28,9 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$2c$__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f40$prisma$2f$client$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs, [project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/@prisma/client)");
 ;
-const prisma = new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$2c$__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f40$prisma$2f$client$29$__["PrismaClient"]();
+const globalForPrisma = globalThis;
+const prisma = globalForPrisma.prisma ?? new __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$2c$__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f40$prisma$2f$client$29$__["PrismaClient"]();
+if ("TURBOPACK compile-time truthy", 1) globalForPrisma.prisma = prisma;
 const __TURBOPACK__default__export__ = prisma;
 }),
 "[project]/OneDrive/Área de Trabalho/temp-tracker/lib/auth.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
@@ -49,6 +51,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Traba
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f40$auth$2f$core$2f$providers$2f$credentials$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/@auth/core/providers/credentials.js [app-rsc] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f40$auth$2f$prisma$2d$adapter$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/@auth/prisma-adapter/index.js [app-rsc] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/lib/prisma.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/bcryptjs/index.js [app-rsc] (ecmascript)");
+;
 ;
 ;
 ;
@@ -70,27 +74,21 @@ const { handlers, auth, signIn, signOut } = (0, __TURBOPACK__imported__module__$
             },
             async authorize (credentials) {
                 try {
-                    // 1. Validar inputs
                     if (!credentials?.email || !credentials?.password) {
                         return null;
                     }
-                    // 2. Buscar usuário no banco
                     const user = await __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].user.findUnique({
                         where: {
                             email: credentials.email
                         }
                     });
-                    // 3. Verificar se usuário existe
-                    if (!user) {
-                        console.log("Usuário não encontrado:", credentials.email);
+                    if (!user || !user.password) {
                         return null;
                     }
-                    // 4. Verificar senha (em produção, use bcrypt!)
-                    if (user.password !== credentials.password) {
-                        console.log("Senha incorreta para:", credentials.email);
+                    const passwordMatch = await __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].compare(credentials.password, user.password);
+                    if (!passwordMatch) {
                         return null;
                     }
-                    // 5. Retornar dados do usuário (sem senha!)
                     return {
                         id: user.id,
                         email: user.email,

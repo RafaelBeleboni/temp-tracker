@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\rafae\\\\OneDrive\\\\Área de Trabalho\\\\temp-tracker\\\\lib\" -Recurse | Select-Object FullName | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"c:\\\\Users\\\\rafae\\\\OneDrive\\\\Área de Trabalho\\\\temp-tracker\\\\\"\\), \"\" })",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\rafae\\\\OneDrive\\\\Área de Trabalho\\\\temp-tracker\" -Recurse -Force | Select-Object -ExpandProperty FullName | ForEach-Object { $_ -replace [regex]::Escape\\(\"c:\\\\Users\\\\rafae\\\\OneDrive\\\\Área de Trabalho\\\\temp-tracker\"\\), \".\" } | Sort-Object)",
+      "Bash(npx prisma *)",
+      "Bash(node_modules\\\\.bin\\\\prisma --version)"
+    ]
+  }
+}

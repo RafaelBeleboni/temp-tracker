@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
+import bcrypt from "bcryptjs"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -14,31 +15,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         try {
-          // 1. Validar inputs
           if (!credentials?.email || !credentials?.password) {
             return null
           }
 
-          // 2. Buscar usuário no banco
           const user = await prisma.user.findUnique({
-            where: { 
-              email: credentials.email as string
-            }
+            where: { email: credentials.email as string }
           })
 
-          // 3. Verificar se usuário existe
-          if (!user) {
-            console.log("Usuário não encontrado:", credentials.email)
+          if (!user || !user.password) {
             return null
           }
 
-          // 4. Verificar senha (em produção, use bcrypt!)
-          if (user.password !== credentials.password) {
-            console.log("Senha incorreta para:", credentials.email)
+          const passwordMatch = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          )
+
+          if (!passwordMatch) {
             return null
           }
 
-          // 5. Retornar dados do usuário (sem senha!)
           return {
             id: user.id,
             email: user.email,

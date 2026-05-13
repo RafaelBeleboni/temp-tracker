@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
       
       try {
         // Verificar se é token de hardware (ESP32)
-        const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as any
+        const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+        const decoded = jwt.verify(token, secret!) as any
         
         if (decoded.type === 'hardware' && decoded.permissions.includes('temperatura:write')) {
           authenticated = true

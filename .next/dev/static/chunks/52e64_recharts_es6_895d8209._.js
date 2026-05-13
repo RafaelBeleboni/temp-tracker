@@ -690,7 +690,8 @@ function ZIndexSvgPortal(_ref) {
     // these g elements should not be tabbable
     return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("g", {
         tabIndex: -1,
-        ref: ref
+        ref: ref,
+        className: "recharts-zIndex-layer_".concat(zIndex)
     });
 }
 function AllZIndexPortals(_ref2) {
@@ -722,13 +723,11 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2d$dom$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/next/dist/compiled/react-dom/index.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$DataUtils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/DataUtils.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/hooks.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$zIndexSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/zIndex/zIndexSelectors.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$zIndexSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/zIndexSlice.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$chartLayoutContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/context/chartLayoutContext.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/context/PanoramaContext.js [app-client] (ecmascript)");
-;
 ;
 ;
 ;
@@ -748,49 +747,110 @@ function ZIndexLayer(_ref) {
    * because 0 is the default layer that does not need a portal.
    */ var shouldRenderInPortal = isInChartContext && zIndex !== undefined && zIndex !== 0;
     var isPanorama = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIsPanorama"])();
+    /**
+   * When zIndex changes, the new portal element is not immediately available because
+   * it requires a full render cycle through AllZIndexPortals → ZIndexSvgPortal.
+   * During this transition we keep rendering into the previous portal element
+   * to avoid an unmount/remount cycle that would cause children to briefly disappear.
+   *
+   * `registeredZIndexesRef` tracks every zIndex we have registered so that
+   * we can defer unregistration of old values until the new portal is ready.
+   * `lastPortalElementRef` caches the most recent valid portal DOM node.
+   */ var lastPortalElementRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(undefined);
+    var registeredZIndexesRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(new Set());
     var dispatch = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppDispatch"])();
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"])({
+    var portalElement = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "ZIndexLayer.useAppSelector[portalElement]": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$zIndexSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectZIndexPortalElement"])(state, zIndex, isPanorama)
+    }["ZIndexLayer.useAppSelector[portalElement]"]);
+    /*
+   * Lifecycle effect — handles both registration and deferred cleanup.
+   *
+   * Registration: when zIndex changes we register the new value WITHOUT
+   * immediately unregistering the old one. This keeps the old <g> element
+   * alive in the DOM so `lastPortalElementRef` remains a valid render target.
+   *
+   * Deferred cleanup: once `portalElement` for the *new* zIndex becomes
+   * available we unregister every stale zIndex that is no longer needed.
+   */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"])({
         "ZIndexLayer.useLayoutEffect": ()=>{
             if (!shouldRenderInPortal) {
-                // Nothing to do. We have to call the hook because of the rules of hooks.
-                return __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$DataUtils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["noop"];
+                // Portal rendering was disabled — clean up any stale registrations
+                var registered = registeredZIndexesRef.current;
+                registered.forEach({
+                    "ZIndexLayer.useLayoutEffect": (z)=>{
+                        dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$zIndexSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["unregisterZIndexPortal"])({
+                            zIndex: z
+                        }));
+                    }
+                }["ZIndexLayer.useLayoutEffect"]);
+                registered.clear();
+                lastPortalElementRef.current = undefined;
+                return;
             }
             /*
      * Because zIndexes are dynamic (meaning, we're not working with a predefined set of layers,
      * but we allow users to define any zIndex at any time), we need to register
      * the requested zIndex in the global store. This way, the ZIndexPortals component
      * can render the corresponding portals and only the requested ones.
-     */ dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$zIndexSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["registerZIndexPortal"])({
-                zIndex
-            }));
-            return ({
-                "ZIndexLayer.useLayoutEffect": ()=>{
-                    dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$zIndexSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["unregisterZIndexPortal"])({
-                        zIndex
-                    }));
-                }
-            })["ZIndexLayer.useLayoutEffect"];
+     */ // Register the current zIndex (idempotent — skips if already registered)
+            if (!registeredZIndexesRef.current.has(zIndex)) {
+                dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$zIndexSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["registerZIndexPortal"])({
+                    zIndex
+                }));
+                registeredZIndexesRef.current.add(zIndex);
+            }
+            // When the new portal element is ready, retire old zIndex registrations
+            if (portalElement) {
+                lastPortalElementRef.current = portalElement;
+                var _registered = registeredZIndexesRef.current;
+                _registered.forEach({
+                    "ZIndexLayer.useLayoutEffect": (z)=>{
+                        if (z !== zIndex) {
+                            dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$zIndexSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["unregisterZIndexPortal"])({
+                                zIndex: z
+                            }));
+                            _registered.delete(z);
+                        }
+                    }
+                }["ZIndexLayer.useLayoutEffect"]);
+            }
         }
     }["ZIndexLayer.useLayoutEffect"], [
         dispatch,
         zIndex,
-        shouldRenderInPortal
+        shouldRenderInPortal,
+        portalElement
     ]);
-    var portalElement = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
-        "ZIndexLayer.useAppSelector[portalElement]": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$zIndexSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectZIndexPortalElement"])(state, zIndex, isPanorama)
-    }["ZIndexLayer.useAppSelector[portalElement]"]);
+    // Unmount-only cleanup — unregister everything when the component is removed
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"])({
+        "ZIndexLayer.useLayoutEffect": ()=>{
+            var registered = registeredZIndexesRef.current;
+            return ({
+                "ZIndexLayer.useLayoutEffect": ()=>{
+                    registered.forEach({
+                        "ZIndexLayer.useLayoutEffect": (z)=>{
+                            dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$zIndexSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["unregisterZIndexPortal"])({
+                                zIndex: z
+                            }));
+                        }
+                    }["ZIndexLayer.useLayoutEffect"]);
+                    registered.clear();
+                }
+            })["ZIndexLayer.useLayoutEffect"];
+        }
+    }["ZIndexLayer.useLayoutEffect"], [
+        dispatch
+    ]);
     if (!shouldRenderInPortal) {
-        // If no zIndex is provided or zIndex is 0, render normally without portals
         return children;
     }
-    if (!portalElement) {
-        /*
-     * If we don't have a portal element yet, this means that the registration
-     * has not been processed yet by the ZIndexPortals component.
-     * So here we render null and wait for the next render cycle.
-     */ return null;
+    // Prefer the current portal; fall back to the cached one during transitions
+    var targetElement = portalElement !== null && portalElement !== void 0 ? portalElement : lastPortalElementRef.current;
+    if (!targetElement) {
+        // Very first render — no portal has ever been registered yet
+        return null;
     }
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2d$dom$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createPortal"])(children, portalElement);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2d$dom$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createPortal"])(children, targetElement);
 }
 }),
 "[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/polar/defaultPolarAngleAxisProps.js [app-client] (ecmascript)", ((__turbopack_context__) => {
@@ -816,6 +876,7 @@ var defaultPolarAngleAxisProps = {
     hide: false,
     includeHidden: false,
     label: false,
+    niceTicks: 'auto',
     orientation: 'outer',
     reversed: false,
     scale: 'auto',
@@ -843,6 +904,7 @@ var defaultPolarRadiusAxisProps = {
     axisLine: true,
     includeHidden: false,
     hide: false,
+    niceTicks: 'auto',
     label: false,
     orientation: 'right',
     radiusAxisId: 0,
@@ -1243,7 +1305,18 @@ function _objectWithoutPropertiesLoose(r, e) {
 ;
 ;
 ;
-function useTooltipSyncEventsListener() {
+/**
+ * Listens for tooltip sync events from other charts and dispatches the appropriate
+ * sync interaction state based on the current chart's syncMethod.
+ *
+ * Handles three sync methods:
+ * - 'index': passes through the tooltip index with coordinate scaling between chart viewBoxes
+ * - 'value': matches the incoming label against this chart's axis ticks by string comparison
+ * - function: delegates tick resolution to a user-provided callback
+ *
+ * When a synced label has no matching tick (e.g. sparse chart), the tooltip is hidden
+ * but sourceViewBox is preserved to prevent counter-emission cascades.
+ */ function useTooltipSyncEventsListener() {
     var mySyncId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$rootPropsSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectSyncId"]);
     var myEventEmitter = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$rootPropsSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectEventEmitter"]);
     var dispatch = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppDispatch"])();
@@ -1268,6 +1341,23 @@ function useTooltipSyncEventsListener() {
                     }
                     if (mySyncId !== incomingSyncId) {
                         // This event is not for this chart
+                        return;
+                    }
+                    /*
+       * Handle source chart deactivation (mouseLeave) for ALL sync methods.
+       * This must be checked before any syncMethod-specific logic to ensure
+       * sourceViewBox is cleared, which allows isReceivingSynchronisation
+       * to become false and lets the normal emission flow resume.
+       */ if (action.payload.active === false) {
+                        dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$tooltipSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setSyncInteraction"])({
+                            active: false,
+                            coordinate: undefined,
+                            dataKey: undefined,
+                            index: null,
+                            label: undefined,
+                            sourceViewBox: undefined,
+                            graphicalItemId: undefined
+                        }));
                         return;
                     }
                     if (syncMethod === 'index') {
@@ -1316,7 +1406,7 @@ function useTooltipSyncEventsListener() {
                         }["useTooltipSyncEventsListener.useEffect.listener"]);
                     }
                     var { coordinate } = action.payload;
-                    if (activeTick == null || action.payload.active === false || coordinate == null || viewBox == null) {
+                    if (coordinate == null || viewBox == null) {
                         dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$tooltipSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setSyncInteraction"])({
                             active: false,
                             coordinate: undefined,
@@ -1324,6 +1414,29 @@ function useTooltipSyncEventsListener() {
                             index: null,
                             label: undefined,
                             sourceViewBox: undefined,
+                            graphicalItemId: undefined
+                        }));
+                        return;
+                    }
+                    if (activeTick == null) {
+                        /*
+         * The label from the source chart doesn't match any tick in this chart.
+         * This happens when synced charts have different data arrays
+         * (e.g., one chart has 3 data points while another has 252).
+         *
+         * We set active: false so the tooltip hides (correct — no data for this date),
+         * but we keep sourceViewBox set to signal that we're still receiving sync events.
+         * The emission guard in useTooltipChartSynchronisation checks sourceViewBox
+         * (not active) to decide whether to suppress outgoing sync events.
+         * Without this, the chart would emit a counter-sync event with active: false,
+         * cascading to clear tooltips on ALL other synced charts.
+         */ dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$tooltipSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setSyncInteraction"])({
+                            active: false,
+                            coordinate: undefined,
+                            dataKey: undefined,
+                            index: null,
+                            label: undefined,
+                            sourceViewBox: action.payload.sourceViewBox,
                             graphicalItemId: undefined
                         }));
                         return;
@@ -1365,7 +1478,10 @@ function useTooltipSyncEventsListener() {
         viewBox
     ]);
 }
-function useBrushSyncEventsListener() {
+/**
+ * Listens for brush sync events from other charts and updates this chart's
+ * data start/end indexes to match, keeping brush positions synchronised.
+ */ function useBrushSyncEventsListener() {
     var mySyncId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$rootPropsSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectSyncId"]);
     var myEventEmitter = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$rootPropsSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectEventEmitter"]);
     var dispatch = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppDispatch"])();
@@ -1415,19 +1531,26 @@ function useTooltipChartSynchronisation(tooltipEventType, trigger, activeCoordin
     var activeDataKey = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
         "useTooltipChartSynchronisation.useAppSelector[activeDataKey]": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$selectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectTooltipDataKey"])(state, tooltipEventType, trigger)
     }["useTooltipChartSynchronisation.useAppSelector[activeDataKey]"]);
+    var activeGraphicalItemId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$tooltipSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectActiveTooltipGraphicalItemId"]);
     var eventEmitterSymbol = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$rootPropsSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectEventEmitter"]);
     var syncId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$rootPropsSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectSyncId"]);
     var syncMethod = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$rootPropsSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectSyncMethod"]);
     var tooltipState = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$synchronisation$2f$syncSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectSynchronisedTooltipState"]);
-    var isReceivingSynchronisation = tooltipState === null || tooltipState === void 0 ? void 0 : tooltipState.active;
+    /*
+   * Use sourceViewBox (not active) to determine if we're receiving sync events.
+   * sourceViewBox is set whenever another chart sends a sync event to us — even when
+   * our own tooltip is inactive (because the label didn't match our data).
+   * This prevents charts with sparse data from emitting counter-sync events
+   * that would clear tooltips on all other synced charts.
+   */ var isReceivingSynchronisation = (tooltipState === null || tooltipState === void 0 ? void 0 : tooltipState.sourceViewBox) != null;
     var viewBox = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$chartLayoutContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useViewBox"])();
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "useTooltipChartSynchronisation.useEffect": ()=>{
             if (isReceivingSynchronisation) {
                 /*
-       * This chart currently has active tooltip, synchronised from another chart.
+       * This chart is currently receiving synchronisation events from another chart.
        * Let's not send any outgoing synchronisation events while that's happening
-       * to avoid infinite loops.
+       * to avoid infinite loops and cascading tooltip clears.
        */ return;
             }
             if (syncId == null) {
@@ -1449,7 +1572,7 @@ function useTooltipChartSynchronisation(tooltipEventType, trigger, activeCoordin
                 index: activeIndex,
                 label: typeof activeLabel === 'number' ? String(activeLabel) : activeLabel,
                 sourceViewBox: viewBox,
-                graphicalItemId: undefined
+                graphicalItemId: activeGraphicalItemId
             });
             __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$Events$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["eventCenter"].emit(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$Events$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TOOLTIP_SYNC_EVENT"], syncId, syncAction, eventEmitterSymbol);
         }
@@ -1457,6 +1580,7 @@ function useTooltipChartSynchronisation(tooltipEventType, trigger, activeCoordin
         isReceivingSynchronisation,
         activeCoordinate,
         activeDataKey,
+        activeGraphicalItemId,
         activeIndex,
         activeLabel,
         eventEmitterSymbol,
@@ -1618,9 +1742,16 @@ var ResponsiveDiv = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project
     }["ResponsiveDiv.useCallback[setContainerSize]"], []);
     var innerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "ResponsiveDiv.useCallback[innerRef]": (node)=>{
+            // 1. First, call the external ref if it was provided
             if (typeof ref === 'function') {
                 ref(node);
             }
+            // 2. Disconnect any previously active ResizeObserver instance to prevent memory leaks
+            if (observerRef.current != null) {
+                observerRef.current.disconnect();
+                observerRef.current = null;
+            }
+            // 3. Initiate a new ResizeObserver on the valid DOM node
             if (node != null && typeof ResizeObserver !== 'undefined') {
                 var { width: containerWidth, height: containerHeight } = node.getBoundingClientRect();
                 setContainerSize(containerWidth, containerHeight);
@@ -1828,6 +1959,13 @@ var RechartsWrapper = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$proje
     }["RechartsWrapper.useCallback[onFocus]"], [
         dispatch
     ]);
+    var onBlur = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "RechartsWrapper.useCallback[onBlur]": ()=>{
+            dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$keyboardEventsMiddleware$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["blurAction"])());
+        }
+    }["RechartsWrapper.useCallback[onBlur]"], [
+        dispatch
+    ]);
     var onKeyDown = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "RechartsWrapper.useCallback[onKeyDown]": (e)=>{
             dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$keyboardEventsMiddleware$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["keyDownAction"])(e.key));
@@ -1943,6 +2081,7 @@ var RechartsWrapper = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$proje
         onContextMenu: myOnContextMenu,
         onDoubleClick: myOnDoubleClick,
         onFocus: onFocus,
+        onBlur: onBlur,
         onKeyDown: onKeyDown,
         onMouseDown: myOnMouseDown,
         onMouseEnter: myOnMouseEnter,
@@ -2060,11 +2199,58 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Traba
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$chartDataContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/context/chartDataContext.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$ReportMainChartProps$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/ReportMainChartProps.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$ReportChartProps$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/ReportChartProps.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$ReportEventSettings$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/ReportEventSettings.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$chart$2f$CategoricalChart$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/chart/CategoricalChart.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$resolveDefaultProps$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/resolveDefaultProps.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$eventSettingsSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/eventSettingsSlice.js [app-client] (ecmascript)");
 function _extends() {
     return _extends = ("TURBOPACK compile-time truthy", 1) ? Object.assign.bind() : "TURBOPACK unreachable", _extends.apply(null, arguments);
 }
+function ownKeys(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+        var o = Object.getOwnPropertySymbols(e);
+        r && (o = o.filter(function(r) {
+            return Object.getOwnPropertyDescriptor(e, r).enumerable;
+        })), t.push.apply(t, o);
+    }
+    return t;
+}
+function _objectSpread(e) {
+    for(var r = 1; r < arguments.length; r++){
+        var t = null != arguments[r] ? arguments[r] : {};
+        r % 2 ? ownKeys(Object(t), !0).forEach(function(r) {
+            _defineProperty(e, r, t[r]);
+        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r) {
+            Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+        });
+    }
+    return e;
+}
+function _defineProperty(e, r, t) {
+    return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+        value: t,
+        enumerable: !0,
+        configurable: !0,
+        writable: !0
+    }) : e[r] = t, e;
+}
+function _toPropertyKey(t) {
+    var i = _toPrimitive(t, "string");
+    return "symbol" == typeof i ? i : i + "";
+}
+function _toPrimitive(t, r) {
+    if ("object" != typeof t || !t) return t;
+    var e = t[Symbol.toPrimitive];
+    if (void 0 !== e) {
+        var i = e.call(t, r || "default");
+        if ("object" != typeof i) return i;
+        throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return ("string" === r ? String : Number)(t);
+}
+;
+;
 ;
 ;
 ;
@@ -2079,7 +2265,7 @@ var defaultMargin = {
     bottom: 5,
     left: 5
 };
-var defaultCartesianChartProps = {
+var defaultCartesianChartProps = _objectSpread({
     accessibilityLayer: true,
     barCategoryGap: '10%',
     barGap: 4,
@@ -2089,7 +2275,7 @@ var defaultCartesianChartProps = {
     reverseStackOrder: false,
     stackOffset: 'none',
     syncMethod: 'index'
-};
+}, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$eventSettingsSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["initialEventSettingsState"]);
 var CartesianChart = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"])(function CartesianChart(props, ref) {
     var _categoricalChartProp;
     var rootChartProps = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$resolveDefaultProps$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["resolveDefaultProps"])(props.categoricalChartProps, defaultCartesianChartProps);
@@ -2111,6 +2297,9 @@ var CartesianChart = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$projec
     }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$ReportMainChartProps$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReportMainChartProps"], {
         layout: rootChartProps.layout,
         margin: rootChartProps.margin
+    }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$ReportEventSettings$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReportEventSettings"], {
+        throttleDelay: rootChartProps.throttleDelay,
+        throttledEvents: rootChartProps.throttledEvents
     }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$ReportChartProps$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReportChartProps"], {
         baseValue: rootChartProps.baseValue,
         accessibilityLayer: rootChartProps.accessibilityLayer,
@@ -2166,6 +2355,8 @@ __turbopack_context__.s([
     ()=>useActiveTooltipDataPoints,
     "useActiveTooltipLabel",
     ()=>useActiveTooltipLabel,
+    "useCartesianScale",
+    ()=>useCartesianScale,
     "useIsTooltipActive",
     ()=>useIsTooltipActive,
     "useOffset",
@@ -2176,10 +2367,30 @@ __turbopack_context__.s([
     ()=>useXAxis,
     "useXAxisDomain",
     ()=>useXAxisDomain,
+    "useXAxisInverseDataSnapScale",
+    ()=>useXAxisInverseDataSnapScale,
+    "useXAxisInverseScale",
+    ()=>useXAxisInverseScale,
+    "useXAxisInverseTickSnapScale",
+    ()=>useXAxisInverseTickSnapScale,
+    "useXAxisScale",
+    ()=>useXAxisScale,
+    "useXAxisTicks",
+    ()=>useXAxisTicks,
     "useYAxis",
     ()=>useYAxis,
     "useYAxisDomain",
-    ()=>useYAxisDomain
+    ()=>useYAxisDomain,
+    "useYAxisInverseDataSnapScale",
+    ()=>useYAxisInverseDataSnapScale,
+    "useYAxisInverseScale",
+    ()=>useYAxisInverseScale,
+    "useYAxisInverseTickSnapScale",
+    ()=>useYAxisInverseTickSnapScale,
+    "useYAxisScale",
+    ()=>useYAxisScale,
+    "useYAxisTicks",
+    ()=>useYAxisTicks
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/cartesianAxisSlice.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/selectors/axisSelectors.js [app-client] (ecmascript)");
@@ -2206,6 +2417,92 @@ var useYAxis = (yAxisId)=>{
     return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
         "useYAxis.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisWithScale"])(state, 'yAxis', yAxisId, isPanorama)
     }["useYAxis.useAppSelector"]);
+};
+var useXAxisScale = function useXAxisScale() {
+    var xAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var isPanorama = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIsPanorama"])();
+    var scale = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useXAxisScale.useAppSelector[scale]": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisScale"])(state, 'xAxis', xAxisId, isPanorama)
+    }["useXAxisScale.useAppSelector[scale]"]);
+    return scale === null || scale === void 0 ? void 0 : scale.map;
+};
+var useYAxisScale = function useYAxisScale() {
+    var yAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var isPanorama = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIsPanorama"])();
+    var scale = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useYAxisScale.useAppSelector[scale]": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisScale"])(state, 'yAxis', yAxisId, isPanorama)
+    }["useYAxisScale.useAppSelector[scale]"]);
+    return scale === null || scale === void 0 ? void 0 : scale.map;
+};
+var useXAxisInverseScale = function useXAxisInverseScale() {
+    var xAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var isPanorama = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIsPanorama"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useXAxisInverseScale.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisInverseScale"])(state, 'xAxis', xAxisId, isPanorama)
+    }["useXAxisInverseScale.useAppSelector"]);
+};
+var useXAxisInverseDataSnapScale = function useXAxisInverseDataSnapScale() {
+    var xAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var isPanorama = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIsPanorama"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useXAxisInverseDataSnapScale.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisInverseDataSnapScale"])(state, 'xAxis', xAxisId, isPanorama)
+    }["useXAxisInverseDataSnapScale.useAppSelector"]);
+};
+var useXAxisInverseTickSnapScale = function useXAxisInverseTickSnapScale() {
+    var xAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useXAxisInverseTickSnapScale.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisInverseTickSnapScale"])(state, 'xAxis', xAxisId)
+    }["useXAxisInverseTickSnapScale.useAppSelector"]);
+};
+var useYAxisInverseScale = function useYAxisInverseScale() {
+    var yAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var isPanorama = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIsPanorama"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useYAxisInverseScale.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisInverseScale"])(state, 'yAxis', yAxisId, isPanorama)
+    }["useYAxisInverseScale.useAppSelector"]);
+};
+var useYAxisInverseDataSnapScale = function useYAxisInverseDataSnapScale() {
+    var yAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var isPanorama = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$context$2f$PanoramaContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIsPanorama"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useYAxisInverseDataSnapScale.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisInverseDataSnapScale"])(state, 'yAxis', yAxisId, isPanorama)
+    }["useYAxisInverseDataSnapScale.useAppSelector"]);
+};
+var useYAxisInverseTickSnapScale = function useYAxisInverseTickSnapScale() {
+    var yAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useYAxisInverseTickSnapScale.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectAxisInverseTickSnapScale"])(state, 'yAxis', yAxisId)
+    }["useYAxisInverseTickSnapScale.useAppSelector"]);
+};
+var useXAxisTicks = function useXAxisTicks() {
+    var xAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useXAxisTicks.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectRenderedTicksOfAxis"])(state, 'xAxis', xAxisId)
+    }["useXAxisTicks.useAppSelector"]);
+};
+var useYAxisTicks = function useYAxisTicks() {
+    var yAxisId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])({
+        "useYAxisTicks.useAppSelector": (state)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectRenderedTicksOfAxis"])(state, 'yAxis', yAxisId)
+    }["useYAxisTicks.useAppSelector"]);
+};
+var useCartesianScale = function useCartesianScale(dataPoint) {
+    var xAxisId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var yAxisId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$cartesianAxisSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultAxisId"];
+    var xScale = useXAxisScale(xAxisId);
+    var yScale = useYAxisScale(yAxisId);
+    if (xScale == null || yScale == null) {
+        return undefined;
+    }
+    var pixelX = xScale(dataPoint.x);
+    var pixelY = yScale(dataPoint.y);
+    if (pixelX == null || pixelY == null) {
+        return undefined;
+    }
+    return {
+        x: pixelX,
+        y: pixelY
+    };
 };
 var useActiveTooltipLabel = ()=>{
     return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$tooltipSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectActiveLabel"]);
@@ -2590,7 +2887,7 @@ var Rectangle = (rectangleProps)=>{
     var prevX = prevXRef.current;
     var prevY = prevYRef.current;
     var from = "0px ".concat(totalLength === -1 ? 1 : totalLength, "px");
-    var to = "".concat(totalLength, "px 0px");
+    var to = "".concat(totalLength, "px ").concat(totalLength, "px");
     var transition = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$animation$2f$util$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTransitionVal"])([
         'strokeDasharray'
     ], animationDuration, typeof animationEasing === 'string' ? animationEasing : defaultRectangleProps.animationEasing);
@@ -2806,7 +3103,7 @@ var Trapezoid = (outsideProps)=>{
     var prevX = prevXRef.current;
     var prevY = prevYRef.current;
     var from = "0px ".concat(totalLength === -1 ? 1 : totalLength, "px");
-    var to = "".concat(totalLength, "px 0px");
+    var to = "".concat(totalLength, "px ").concat(totalLength, "px");
     var transition = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$animation$2f$util$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTransitionVal"])([
         'strokeDasharray'
     ], animationDuration, animationEasing);
@@ -3306,21 +3603,21 @@ __turbopack_context__.s([
  * @fileOverview Curve
  */ var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$victory$2d$vendor$2f$es$2f$d3$2d$shape$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/victory-vendor/es/d3-shape.js [app-client] (ecmascript) <locals>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__line$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/line.js [app-client] (ecmascript) <export default as line>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$area$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__area$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/area.js [app-client] (ecmascript) <export default as area>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$basis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveBasis$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/basis.js [app-client] (ecmascript) <export default as curveBasis>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$basisClosed$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveBasisClosed$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/basisClosed.js [app-client] (ecmascript) <export default as curveBasisClosed>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$basisOpen$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveBasisOpen$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/basisOpen.js [app-client] (ecmascript) <export default as curveBasisOpen>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$basis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveBasis$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/basis.js [app-client] (ecmascript) <export default as curveBasis>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$bump$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__bumpX__as__curveBumpX$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/bump.js [app-client] (ecmascript) <export bumpX as curveBumpX>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$bump$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__bumpY__as__curveBumpY$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/bump.js [app-client] (ecmascript) <export bumpY as curveBumpY>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$linearClosed$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveLinearClosed$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/linearClosed.js [app-client] (ecmascript) <export default as curveLinearClosed>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$linear$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveLinear$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/linear.js [app-client] (ecmascript) <export default as curveLinear>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$linearClosed$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveLinearClosed$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/linearClosed.js [app-client] (ecmascript) <export default as curveLinearClosed>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$monotone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__monotoneX__as__curveMonotoneX$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/monotone.js [app-client] (ecmascript) <export monotoneX as curveMonotoneX>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$monotone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__monotoneY__as__curveMonotoneY$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/monotone.js [app-client] (ecmascript) <export monotoneY as curveMonotoneY>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$natural$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveNatural$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/natural.js [app-client] (ecmascript) <export default as curveNatural>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$step$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__curveStep$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/step.js [app-client] (ecmascript) <export default as curveStep>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$step$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__stepAfter__as__curveStepAfter$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/step.js [app-client] (ecmascript) <export stepAfter as curveStepAfter>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$step$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__stepBefore__as__curveStepBefore$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/curve/step.js [app-client] (ecmascript) <export stepBefore as curveStepBefore>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__line$3e$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/d3-shape/src/line.js [app-client] (ecmascript) <export default as line>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/clsx/dist/clsx.mjs [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$types$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/types.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$DataUtils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/DataUtils.js [app-client] (ecmascript)");
@@ -3397,6 +3694,8 @@ var CURVE_FACTORIES = {
     curveStepBefore: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$d3$2d$shape$2f$src$2f$curve$2f$step$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__stepBefore__as__curveStepBefore$3e$__["curveStepBefore"]
 };
 /**
+ * @inline
+ */ /**
  * @inline
  */ var defined = (p)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$isWellBehavedNumber$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isWellBehavedNumber"])(p.x) && (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$isWellBehavedNumber$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isWellBehavedNumber"])(p.y);
 var areaDefined = (d)=>d.base != null && defined(d.base) && defined(d);
@@ -4188,6 +4487,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Traba
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$animation$2f$easing$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/animation/easing.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$animation$2f$useAnimationManager$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/animation/useAnimationManager.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$Global$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/Global.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$usePrefersReducedMotion$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/usePrefersReducedMotion.js [app-client] (ecmascript)");
+;
 ;
 ;
 ;
@@ -4213,7 +4514,8 @@ var to = {
 function JavascriptAnimate(outsideProps) {
     var props = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$resolveDefaultProps$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["resolveDefaultProps"])(outsideProps, defaultJavascriptAnimateProps);
     var { isActive: isActiveProp, canBegin, duration, easing, begin, onAnimationEnd, onAnimationStart, children } = props;
-    var isActive = isActiveProp === 'auto' ? !__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$Global$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Global"].isSsr : isActiveProp;
+    var prefersReducedMotion = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$usePrefersReducedMotion$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePrefersReducedMotion"])();
+    var isActive = isActiveProp === 'auto' ? !__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$Global$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Global"].isSsr && !prefersReducedMotion : isActiveProp;
     var animationManager = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$animation$2f$useAnimationManager$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAnimationManager"])(props.animationId, props.animationManager);
     var [style, setStyle] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(isActive ? from : to);
     var stopJSAnimation = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);

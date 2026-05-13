@@ -11,15 +11,16 @@ export async function POST() {
     }
 
     // 🔑 Gerar token permanente para ESP32
+    const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
     const token = jwt.sign(
-      { 
+      {
         deviceId: 'esp32-sensor-' + Date.now(),
         type: 'hardware',
         permissions: ['temperatura:write'],
         email: session.user?.email
       },
-      process.env.NEXTAUTH_SECRET!,
-      { expiresIn: '10y' } // 10 anos de validade
+      secret!,
+      { expiresIn: '10y' }
     )
 
     console.log('🔑 Token gerado para ESP32 por:', session.user?.email)

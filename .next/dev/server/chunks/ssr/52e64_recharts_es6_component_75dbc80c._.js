@@ -336,6 +336,8 @@ __turbopack_context__.s([
     ()=>Text,
     "getWordsByLines",
     ()=>getWordsByLines,
+    "isRenderableText",
+    ()=>isRenderableText,
     "isValidTextAnchor",
     ()=>isValidTextAnchor,
     "textDefaultProps",
@@ -425,11 +427,10 @@ var calculateWordWidths = (_ref)=>{
 function isValidTextAnchor(value) {
     return value === 'start' || value === 'middle' || value === 'end' || value === 'inherit';
 }
-/**
- * @inline
- */ /**
- * @inline
- */ var calculate = (words, lineWidth, spaceWidth, scaleToFit)=>words.reduce((result, _ref2)=>{
+function isRenderableText(val) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$DataUtils$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["isNullish"])(val) || typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean';
+}
+var calculate = (words, lineWidth, spaceWidth, scaleToFit)=>words.reduce((result, _ref2)=>{
         var { word, width } = _ref2;
         var currentLine = result[result.length - 1];
         if (currentLine && width != null && (lineWidth == null || scaleToFit || currentLine.width + width + spaceWidth < Number(lineWidth))) {
@@ -1080,7 +1081,6 @@ __turbopack_context__.s([
     ()=>PolarLabelListContextProvider
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$es$2d$toolkit$2f$compat$2f$last$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/es-toolkit/compat/last.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Label$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/component/Label.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$container$2f$Layer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/container/Layer.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$ChartUtils$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/ChartUtils.js [app-ssr] (ecmascript)");
@@ -1088,6 +1088,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Traba
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$svgPropertiesAndEvents$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/svgPropertiesAndEvents.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$ZIndexLayer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/zIndex/ZIndexLayer.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$DefaultZIndexes$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/zIndex/DefaultZIndexes.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/component/Text.js [app-ssr] (ecmascript)");
 var _excluded = [
     "valueAccessor"
 ], _excluded2 = [
@@ -1152,7 +1153,13 @@ function _objectWithoutPropertiesLoose(r, e) {
  *    the props to be passed to a LabelList component
  *
  * @inline
- */ var defaultAccessor = (entry)=>Array.isArray(entry.value) ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$es$2d$toolkit$2f$compat$2f$last$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(entry.value) : entry.value;
+ */ var defaultAccessor = (entry)=>{
+    var val = Array.isArray(entry.value) ? entry.value[entry.value.length - 1] : entry.value;
+    if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["isRenderableText"])(val)) {
+        return val;
+    }
+    return undefined;
+};
 var CartesianLabelListContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createContext"])(undefined);
 var CartesianLabelListContextProvider = CartesianLabelListContext.Provider;
 var PolarLabelListContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createContext"])(undefined);
@@ -1595,6 +1602,13 @@ var defaultDefaultTooltipContentProps = {
     labelStyle: {},
     accessibilityLayer: false
 };
+function lodashLikeSortBy(array, itemSorter) {
+    if (itemSorter == null) {
+        return array;
+    }
+    // @ts-expect-error sortBy types somehow are returning a number type.
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$es$2d$toolkit$2f$compat$2f$sortBy$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(array, itemSorter);
+}
 var DefaultTooltipContent = (props)=>{
     var { separator = defaultDefaultTooltipContentProps.separator, contentStyle, itemStyle, labelStyle = defaultDefaultTooltipContentProps.labelStyle, payload, formatter, itemSorter, wrapperClassName, labelClassName, label, labelFormatter, accessibilityLayer = defaultDefaultTooltipContentProps.accessibilityLayer } = props;
     var renderContent = ()=>{
@@ -1603,8 +1617,9 @@ var DefaultTooltipContent = (props)=>{
                 padding: 0,
                 margin: 0
             };
-            var items = (itemSorter ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$es$2d$toolkit$2f$compat$2f$sortBy$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(payload, itemSorter) : payload).map((entry, i)=>{
-                if (entry.type === 'none') {
+            var sortedPayload = lodashLikeSortBy(payload, itemSorter);
+            var items = sortedPayload.map((entry, i)=>{
+                if (!entry || entry.type === 'none') {
                     return null;
                 }
                 var finalFormatter = entry.formatter || formatter || defaultFormatter;
@@ -1678,6 +1693,7 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$tooltip$2f$translate$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/tooltip/translate.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$usePrefersReducedMotion$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/usePrefersReducedMotion.js [app-ssr] (ecmascript)");
 function ownKeys(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
@@ -1724,86 +1740,92 @@ function _toPrimitive(t, r) {
 ;
 ;
 ;
-class TooltipBoundingBox extends __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PureComponent"] {
-    constructor(){
-        super(...arguments);
-        _defineProperty(this, "state", {
+function resolveTransitionProperty(args) {
+    if (args.prefersReducedMotion && args.isAnimationActive === 'auto') {
+        return undefined;
+    }
+    if (args.isAnimationActive && args.active) {
+        return "transform ".concat(args.animationDuration, "ms ").concat(args.animationEasing);
+    }
+    return undefined;
+}
+function TooltipBoundingBoxImpl(props) {
+    var _props$coordinate3, _props$coordinate4, _props$coordinate$x2, _props$coordinate5, _props$coordinate$y2, _props$coordinate6;
+    var prefersReducedMotion = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$usePrefersReducedMotion$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePrefersReducedMotion"])();
+    var [state, setState] = __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"](()=>({
             dismissed: false,
             dismissedAtCoordinate: {
                 x: 0,
                 y: 0
             }
-        });
-        _defineProperty(this, "handleKeyDown", (event)=>{
+        }));
+    __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"](()=>{
+        var handleKeyDown = (event)=>{
             if (event.key === 'Escape') {
-                var _this$props$coordinat, _this$props$coordinat2, _this$props$coordinat3, _this$props$coordinat4;
-                this.setState({
+                var _props$coordinate$x, _props$coordinate, _props$coordinate$y, _props$coordinate2;
+                setState({
                     dismissed: true,
                     dismissedAtCoordinate: {
-                        x: (_this$props$coordinat = (_this$props$coordinat2 = this.props.coordinate) === null || _this$props$coordinat2 === void 0 ? void 0 : _this$props$coordinat2.x) !== null && _this$props$coordinat !== void 0 ? _this$props$coordinat : 0,
-                        y: (_this$props$coordinat3 = (_this$props$coordinat4 = this.props.coordinate) === null || _this$props$coordinat4 === void 0 ? void 0 : _this$props$coordinat4.y) !== null && _this$props$coordinat3 !== void 0 ? _this$props$coordinat3 : 0
+                        x: (_props$coordinate$x = (_props$coordinate = props.coordinate) === null || _props$coordinate === void 0 ? void 0 : _props$coordinate.x) !== null && _props$coordinate$x !== void 0 ? _props$coordinate$x : 0,
+                        y: (_props$coordinate$y = (_props$coordinate2 = props.coordinate) === null || _props$coordinate2 === void 0 ? void 0 : _props$coordinate2.y) !== null && _props$coordinate$y !== void 0 ? _props$coordinate$y : 0
                     }
                 });
             }
-        });
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return ()=>{
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [
+        (_props$coordinate3 = props.coordinate) === null || _props$coordinate3 === void 0 ? void 0 : _props$coordinate3.x,
+        (_props$coordinate4 = props.coordinate) === null || _props$coordinate4 === void 0 ? void 0 : _props$coordinate4.y
+    ]);
+    if (state.dismissed && (((_props$coordinate$x2 = (_props$coordinate5 = props.coordinate) === null || _props$coordinate5 === void 0 ? void 0 : _props$coordinate5.x) !== null && _props$coordinate$x2 !== void 0 ? _props$coordinate$x2 : 0) !== state.dismissedAtCoordinate.x || ((_props$coordinate$y2 = (_props$coordinate6 = props.coordinate) === null || _props$coordinate6 === void 0 ? void 0 : _props$coordinate6.y) !== null && _props$coordinate$y2 !== void 0 ? _props$coordinate$y2 : 0) !== state.dismissedAtCoordinate.y)) {
+        setState(_objectSpread(_objectSpread({}, state), {}, {
+            dismissed: false
+        }));
     }
-    componentDidMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
-    }
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-    }
-    componentDidUpdate() {
-        var _this$props$coordinat5, _this$props$coordinat6;
-        if (!this.state.dismissed) {
-            return;
-        }
-        if (((_this$props$coordinat5 = this.props.coordinate) === null || _this$props$coordinat5 === void 0 ? void 0 : _this$props$coordinat5.x) !== this.state.dismissedAtCoordinate.x || ((_this$props$coordinat6 = this.props.coordinate) === null || _this$props$coordinat6 === void 0 ? void 0 : _this$props$coordinat6.y) !== this.state.dismissedAtCoordinate.y) {
-            this.state.dismissed = false;
-        }
-    }
-    render() {
-        var { active, allowEscapeViewBox, animationDuration, animationEasing, children, coordinate, hasPayload, isAnimationActive, offset, position, reverseDirection, useTranslate3d, viewBox, wrapperStyle, lastBoundingBox, innerRef, hasPortalFromProps } = this.props;
-        var offsetLeft = typeof offset === 'number' ? offset : offset.x;
-        var offsetTop = typeof offset === 'number' ? offset : offset.y;
-        var { cssClasses, cssProperties } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$tooltip$2f$translate$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getTooltipTranslate"])({
-            allowEscapeViewBox,
-            coordinate,
-            offsetLeft,
-            offsetTop,
-            position,
-            reverseDirection,
-            tooltipBox: {
-                height: lastBoundingBox.height,
-                width: lastBoundingBox.width
-            },
-            useTranslate3d,
-            viewBox
-        });
-        // do not use absolute styles if the user has passed a custom portal prop
-        var positionStyles = hasPortalFromProps ? {} : _objectSpread(_objectSpread({
-            transition: isAnimationActive && active ? "transform ".concat(animationDuration, "ms ").concat(animationEasing) : undefined
-        }, cssProperties), {}, {
-            pointerEvents: 'none',
-            visibility: !this.state.dismissed && active && hasPayload ? 'visible' : 'hidden',
-            position: 'absolute',
-            top: 0,
-            left: 0
-        });
-        var outerStyle = _objectSpread(_objectSpread({}, positionStyles), {}, {
-            visibility: !this.state.dismissed && active && hasPayload ? 'visible' : 'hidden'
-        }, wrapperStyle);
-        return(/*#__PURE__*/ // This element allow listening to the `Escape` key. See https://github.com/recharts/recharts/pull/2925
-        __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createElement"]("div", {
-            // @ts-expect-error typescript library does not recognize xmlns attribute, but it's required for an HTML chunk inside SVG.
-            xmlns: "http://www.w3.org/1999/xhtml",
-            tabIndex: -1,
-            className: cssClasses,
-            style: outerStyle,
-            ref: innerRef
-        }, children));
-    }
+    var { cssClasses, cssProperties } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$tooltip$2f$translate$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getTooltipTranslate"])({
+        allowEscapeViewBox: props.allowEscapeViewBox,
+        coordinate: props.coordinate,
+        offsetLeft: typeof props.offset === 'number' ? props.offset : props.offset.x,
+        offsetTop: typeof props.offset === 'number' ? props.offset : props.offset.y,
+        position: props.position,
+        reverseDirection: props.reverseDirection,
+        tooltipBox: {
+            height: props.lastBoundingBox.height,
+            width: props.lastBoundingBox.width
+        },
+        useTranslate3d: props.useTranslate3d,
+        viewBox: props.viewBox
+    });
+    var positionStyle = props.hasPortalFromProps ? {} : _objectSpread(_objectSpread({
+        transition: resolveTransitionProperty({
+            prefersReducedMotion,
+            isAnimationActive: props.isAnimationActive,
+            active: props.active,
+            animationDuration: props.animationDuration,
+            animationEasing: props.animationEasing
+        })
+    }, cssProperties), {}, {
+        pointerEvents: 'none',
+        position: 'absolute',
+        top: 0,
+        left: 0
+    });
+    var outerStyle = _objectSpread(_objectSpread({}, positionStyle), {}, {
+        visibility: !state.dismissed && props.active && props.hasPayload ? 'visible' : 'hidden'
+    }, props.wrapperStyle);
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createElement"]("div", {
+        // @ts-expect-error typescript library does not recognize xmlns attribute, but it's required for an HTML chunk inside SVG.
+        xmlns: "http://www.w3.org/1999/xhtml",
+        tabIndex: -1,
+        className: cssClasses,
+        style: outerStyle,
+        ref: props.innerRef
+    }, props.children);
 }
+var TooltipBoundingBox = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["memo"](TooltipBoundingBoxImpl);
 }),
 "[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/component/Cursor.js [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -2154,6 +2176,14 @@ function Tooltip(outsideProps) {
         finalPayload = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$payload$2f$getUniqPayload$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getUniqPayload"])(finalPayload.filter((entry)=>entry.value != null && (entry.hide !== true || props.includeHidden)), payloadUniqBy, defaultUniqBy);
     }
     var hasPayload = finalPayload.length > 0;
+    var tooltipContentProps = _objectSpread(_objectSpread({}, props), {}, {
+        payload: finalPayload,
+        label: finalLabel,
+        active: finalIsActive,
+        activeIndex,
+        coordinate,
+        accessibilityLayer
+    });
     var tooltipElement = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$component$2f$TooltipBoundingBox$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TooltipBoundingBox"], {
         allowEscapeViewBox: allowEscapeViewBox,
         animationDuration: animationDuration,
@@ -2171,14 +2201,7 @@ function Tooltip(outsideProps) {
         lastBoundingBox: lastBoundingBox,
         innerRef: updateBoundingBox,
         hasPortalFromProps: Boolean(portalFromProps)
-    }, renderContent(content, _objectSpread(_objectSpread({}, props), {}, {
-        payload: finalPayload,
-        label: finalLabel,
-        active: finalIsActive,
-        activeIndex,
-        coordinate,
-        accessibilityLayer
-    })));
+    }, renderContent(content, tooltipContentProps));
     return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], null, /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$dom$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createPortal"])(tooltipElement, tooltipPortal), finalIsActive && /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Cursor$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Cursor"], {
         cursor: cursor,
         tooltipEventType: tooltipEventType,

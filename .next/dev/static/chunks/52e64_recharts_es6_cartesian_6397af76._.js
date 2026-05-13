@@ -474,32 +474,64 @@ var SetLineTooltipEntrySettings = /*#__PURE__*/ __TURBOPACK__imported__module__$
         tooltipEntrySettings: tooltipEntrySettings
     });
 });
-var generateSimpleStrokeDasharray = (totalLength, length)=>{
-    return "".concat(length, "px ").concat(totalLength - length, "px");
+/**
+ * Generates a simple stroke-dasharray string for animating a line draw effect.
+ *
+ * Uses `totalLength` as the gap (instead of `totalLength - length`) to prevent a floating-point
+ * precision artifact: when fractional dash and gap values are serialized to a string attribute
+ * and re-parsed by the SVG renderer, their sum can differ from the actual path length by a ULP,
+ * causing the dasharray pattern to repeat and render a phantom dot at the path endpoint
+ * with round or square strokeLinecap.
+ *
+ * @param totalLength The total length of the SVG path
+ * @param length The currently visible portion of the path
+ * @returns A stroke-dasharray string like "50px 200px"
+ */ var generateSimpleStrokeDasharray = (totalLength, length)=>{
+    return "".concat(length, "px ").concat(totalLength, "px");
 };
-function repeat(lines, count) {
+/**
+ * Repeats a dash pattern array a given number of times.
+ *
+ * If the input array has an odd length, a trailing `0` is appended to make it even
+ * before repeating, because SVG stroke-dasharray patterns must have an even number
+ * of values to cycle correctly between dash and gap segments.
+ *
+ * @param lines Array of dash/gap lengths to repeat
+ * @param count Number of times to repeat the pattern
+ * @returns A new array with the pattern repeated `count` times
+ */ function repeat(lines, count) {
     var linesUnit = lines.length % 2 !== 0 ? [
         ...lines,
         0
     ] : lines;
     var result = [];
     for(var i = 0; i < count; ++i){
-        result = [
-            ...result,
-            ...linesUnit
-        ];
+        result.push(...linesUnit);
     }
     return result;
 }
-var getStrokeDasharray = (length, totalLength, lines)=>{
-    var lineLength = lines.reduce((pre, next)=>pre + next);
+/**
+ * Computes a stroke-dasharray string for animating a custom-dashed line draw effect.
+ *
+ * Given a user-specified dash pattern (e.g. `"7,3"`), this function builds a dasharray
+ * that reveals exactly `length` pixels of that pattern, followed by a gap of `totalLength`
+ * to hide the remainder of the path.
+ *
+ * Like {@link generateSimpleStrokeDasharray}, the trailing gap uses `totalLength` rather than
+ * `totalLength - length` to avoid floating-point precision artifacts with round/square strokeLinecap.
+ *
+ * @param length The currently visible portion of the path
+ * @param totalLength The total length of the SVG path
+ * @param lines The user-specified dash pattern as an array of numbers (e.g. [7, 3])
+ * @returns A stroke-dasharray string incorporating the custom dash pattern
+ */ var getStrokeDasharray = (length, totalLength, lines)=>{
+    var lineLength = lines.reduce((pre, next)=>pre + next, 0);
     // if lineLength is 0 return the default when no strokeDasharray is provided
     if (!lineLength) {
         return generateSimpleStrokeDasharray(totalLength, length);
     }
     var count = Math.floor(length / lineLength);
     var remainLength = length % lineLength;
-    var restLength = totalLength - length;
     var remainLines = [];
     for(var i = 0, sum = 0; i < lines.length; sum += (_lines$i = lines[i]) !== null && _lines$i !== void 0 ? _lines$i : 0, ++i){
         var _lines$i;
@@ -514,9 +546,9 @@ var getStrokeDasharray = (length, totalLength, lines)=>{
     }
     var emptyLines = remainLines.length % 2 === 0 ? [
         0,
-        restLength
+        totalLength
     ] : [
-        restLength
+        totalLength
     ];
     return [
         ...repeat(lines, count),
@@ -790,7 +822,7 @@ var errorBarDataPointFormatter = (dataPoint, dataKey)=>{
         x: (_dataPoint$x = dataPoint.x) !== null && _dataPoint$x !== void 0 ? _dataPoint$x : undefined,
         y: (_dataPoint$y = dataPoint.y) !== null && _dataPoint$y !== void 0 ? _dataPoint$y : undefined,
         value: dataPoint.value,
-        // @ts-expect-error getValueByDataKey does not validate the output type
+        // getValueByDataKey does not validate the output type
         errorVal: (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$ChartUtils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getValueByDataKey"])(dataPoint.payload, dataKey)
     };
 };
@@ -901,7 +933,7 @@ function LineImpl(props) {
 function computeLinePoints(_ref7) {
     var { layout, xAxis, yAxis, xAxisTicks, yAxisTicks, dataKey, bandSize, displayedData } = _ref7;
     return displayedData.map((entry, index)=>{
-        // @ts-expect-error getValueByDataKey does not validate the output type
+        // getValueByDataKey does not validate the output type
         var value = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$ChartUtils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getValueByDataKey"])(entry, dataKey);
         if (layout === 'horizontal') {
             var _x = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$ChartUtils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getCateCoordinateOfLine"])({
@@ -972,6 +1004,7 @@ function LineFn(outsideProps) {
         }))));
 }
 var Line = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["memo"](LineFn, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$propsAreEqual$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["propsAreEqual"]);
+// @ts-expect-error we need to set the displayName for debugging purposes
 Line.displayName = 'Line';
 }),
 "[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/cartesian/getEquidistantTicks.js [app-client] (ecmascript)", ((__turbopack_context__) => {
@@ -1343,6 +1376,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Traba
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$ZIndexLayer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/zIndex/ZIndexLayer.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$DefaultZIndexes$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/zIndex/DefaultZIndexes.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$getClassNameFromUnknown$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/util/getClassNameFromUnknown.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$renderedTicksSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/renderedTicksSlice.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/state/hooks.js [app-client] (ecmascript)");
 var _excluded = [
     "axisLine",
     "width",
@@ -1350,7 +1385,8 @@ var _excluded = [
     "className",
     "hide",
     "ticks",
-    "axisType"
+    "axisType",
+    "axisId"
 ];
 function _objectWithoutProperties(e, t) {
     if (null == e) return {};
@@ -1416,6 +1452,8 @@ function _toPrimitive(t, r) {
     }
     return ("string" === r ? String : Number)(t);
 }
+;
+;
 ;
 ;
 ;
@@ -1606,16 +1644,56 @@ function TickItem(props) {
     }
     return tickItem;
 }
+function RenderedTicksReporter(_ref) {
+    var { ticks, axisType, axisId } = _ref;
+    var dispatch = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppDispatch"])();
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "RenderedTicksReporter.useEffect": ()=>{
+            if (axisId == null || axisType == null) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$DataUtils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["noop"];
+            }
+            // Filter out irrelevant internal properties before exposing externally
+            var tickItems = ticks.map({
+                "RenderedTicksReporter.useEffect.tickItems": (tick)=>({
+                        value: tick.value,
+                        coordinate: tick.coordinate,
+                        offset: tick.offset,
+                        index: tick.index
+                    })
+            }["RenderedTicksReporter.useEffect.tickItems"]);
+            dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$renderedTicksSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setRenderedTicks"])({
+                ticks: tickItems,
+                axisId,
+                axisType
+            }));
+            return ({
+                "RenderedTicksReporter.useEffect": ()=>{
+                    dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$renderedTicksSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["removeRenderedTicks"])({
+                        axisId,
+                        axisType
+                    }));
+                }
+            })["RenderedTicksReporter.useEffect"];
+        }
+    }["RenderedTicksReporter.useEffect"], [
+        dispatch,
+        ticks,
+        axisId,
+        axisType
+    ]);
+    return null;
+}
 var Ticks = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"])((props, ref)=>{
-    var { ticks = [], tick, tickLine, stroke, tickFormatter, unit, padding, tickTextProps, orientation, mirror, x, y, width, height, tickSize, tickMargin, fontSize, letterSpacing, getTicksConfig, events, axisType } = props;
+    var { ticks = [], tick, tickLine, stroke, tickFormatter, unit, padding, tickTextProps, orientation, mirror, x, y, width, height, tickSize, tickMargin, fontSize, letterSpacing, getTicksConfig, events, axisType, axisId } = props;
     // @ts-expect-error some properties are optional in props but required in getTicks
     var finalTicks = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$getTicks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTicks"])(_objectSpread(_objectSpread({}, getTicksConfig), {}, {
         ticks
     }), fontSize, letterSpacing);
-    var textAnchor = getTickTextAnchor(orientation, mirror);
-    var verticalAnchor = getTickVerticalAnchor(orientation, mirror);
     var axisProps = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$svgPropertiesNoEvents$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["svgPropertiesNoEvents"])(getTicksConfig);
     var customTickProps = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$svgPropertiesNoEvents$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["svgPropertiesNoEventsFromUnknown"])(tick);
+    // Use user-provided textAnchor if available, otherwise calculate from orientation/mirror
+    var textAnchor = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidTextAnchor"])(axisProps.textAnchor) ? axisProps.textAnchor : getTickTextAnchor(orientation, mirror);
+    var verticalAnchor = getTickVerticalAnchor(orientation, mirror);
     var tickLinePropsObject = {};
     if (typeof tickLine === 'object') {
         tickLinePropsObject = tickLine;
@@ -1626,8 +1704,8 @@ var Ticks = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$On
     var tickLineCoords = finalTicks.map((entry)=>_objectSpread({
             entry
         }, getTickLineCoord(entry, x, y, width, height, orientation, tickSize, mirror, tickMargin)));
-    var tickLines = tickLineCoords.map((_ref)=>{
-        var { entry, line: lineCoord } = _ref;
+    var tickLines = tickLineCoords.map((_ref2)=>{
+        var { entry, line: lineCoord } = _ref2;
         return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$container$2f$Layer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Layer"], {
             className: "recharts-cartesian-axis-tick",
             key: "tick-".concat(entry.value, "-").concat(entry.coordinate, "-").concat(entry.tickCoord)
@@ -1635,9 +1713,9 @@ var Ticks = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$On
             className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clsx"])('recharts-cartesian-axis-tick-line', (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$es$2d$toolkit$2f$compat$2f$get$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"])(tickLine, 'className'))
         })));
     });
-    var tickLabels = tickLineCoords.map((_ref2, i)=>{
-        var _ref3, _tickTextProps$angle;
-        var { entry, tick: tickCoord } = _ref2;
+    var tickLabels = tickLineCoords.map((_ref3, i)=>{
+        var _ref4, _tickTextProps$angle;
+        var { entry, tick: tickCoord } = _ref3;
         // @ts-expect-error we're not checking that padding and orientation types are in sync
         var tickProps = _objectSpread(_objectSpread(_objectSpread(_objectSpread({
             verticalAnchor
@@ -1652,7 +1730,7 @@ var Ticks = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$On
             tickFormatter,
             padding
         }, tickTextProps), {}, {
-            angle: (_ref3 = (_tickTextProps$angle = tickTextProps === null || tickTextProps === void 0 ? void 0 : tickTextProps.angle) !== null && _tickTextProps$angle !== void 0 ? _tickTextProps$angle : axisProps.angle) !== null && _ref3 !== void 0 ? _ref3 : 0
+            angle: (_ref4 = (_tickTextProps$angle = tickTextProps === null || tickTextProps === void 0 ? void 0 : tickTextProps.angle) !== null && _tickTextProps$angle !== void 0 ? _tickTextProps$angle : axisProps.angle) !== null && _ref4 !== void 0 ? _ref4 : 0
         });
         // @ts-expect-error customTickProps is contributing unknown props which we don't type properly
         var finalTickProps = _objectSpread(_objectSpread({}, tickProps), customTickProps);
@@ -1667,7 +1745,11 @@ var Ticks = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$On
     });
     return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("g", {
         className: "recharts-cartesian-axis-ticks recharts-".concat(axisType, "-ticks")
-    }, tickLabels.length > 0 && /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$ZIndexLayer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ZIndexLayer"], {
+    }, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](RenderedTicksReporter, {
+        ticks: finalTicks,
+        axisId: axisId,
+        axisType: axisType
+    }), tickLabels.length > 0 && /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$ZIndexLayer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ZIndexLayer"], {
         zIndex: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$zIndex$2f$DefaultZIndexes$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DefaultZIndexes"].label
     }, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("g", {
         className: "recharts-cartesian-axis-tick-labels recharts-".concat(axisType, "-tick-labels"),
@@ -1677,7 +1759,7 @@ var Ticks = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$On
     }, tickLines));
 });
 var CartesianAxisComponent = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"])((props, ref)=>{
-    var { axisLine, width, height, className, hide, ticks, axisType } = props, rest = _objectWithoutProperties(props, _excluded);
+    var { axisLine, width, height, className, hide, ticks, axisType, axisId } = props, rest = _objectWithoutProperties(props, _excluded);
     var [fontSize, setFontSize] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     var [letterSpacing, setLetterSpacing] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     var tickRefs = (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
@@ -1762,7 +1844,8 @@ var CartesianAxisComponent = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5
         unit: props.unit,
         width: props.width,
         x: props.x,
-        y: props.y
+        y: props.y,
+        axisId: axisId
     }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Label$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CartesianLabelContextProvider"], {
         x: props.x,
         y: props.y,
@@ -1982,7 +2065,8 @@ var XAxisImpl = (props)=>{
         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clsx"])("recharts-".concat(axisType, " ").concat(axisType), className),
         viewBox: viewBox,
         ticks: cartesianTickItems,
-        axisType: axisType
+        axisType: axisType,
+        axisId: xAxisId
     }));
 };
 var xAxisDefaultProps = {
@@ -2007,6 +2091,7 @@ var xAxisDefaultProps = {
     tickLine: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultCartesianAxisProps"].tickLine,
     tickSize: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultCartesianAxisProps"].tickSize,
     type: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["implicitXAxis"].type,
+    niceTicks: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["implicitXAxis"].niceTicks,
     xAxisId: 0
 };
 var XAxisSettingsDispatcher = (outsideProps)=>{
@@ -2035,10 +2120,12 @@ var XAxisSettingsDispatcher = (outsideProps)=>{
         tickFormatter: props.tickFormatter,
         ticks: props.ticks,
         type: props.type,
-        unit: props.unit
+        unit: props.unit,
+        niceTicks: props.niceTicks
     }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](XAxisImpl, props));
 };
 var XAxis = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["memo"](XAxisSettingsDispatcher, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$axisPropsAreEqual$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["axisPropsAreEqual"]);
+// @ts-expect-error we need to set the displayName for debugging purposes
 XAxis.displayName = 'XAxis';
 }),
 "[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/cartesian/YAxis.js [app-client] (ecmascript)", ((__turbopack_context__) => {
@@ -2282,7 +2369,8 @@ function YAxisImpl(props) {
         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clsx"])("recharts-".concat(axisType, " ").concat(axisType), className),
         viewBox: viewBox,
         ticks: cartesianTickItems,
-        axisType: axisType
+        axisType: axisType,
+        axisId: yAxisId
     }));
 }
 var yAxisDefaultProps = {
@@ -2306,6 +2394,7 @@ var yAxisDefaultProps = {
     tickLine: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultCartesianAxisProps"].tickLine,
     tickSize: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultCartesianAxisProps"].tickSize,
     type: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["implicitYAxis"].type,
+    niceTicks: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["implicitYAxis"].niceTicks,
     width: __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$state$2f$selectors$2f$axisSelectors$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["implicitYAxis"].width,
     yAxisId: 0
 };
@@ -2335,10 +2424,12 @@ var YAxisSettingsDispatcher = (outsideProps)=>{
         angle: props.angle,
         minTickGap: props.minTickGap,
         tick: props.tick,
-        tickFormatter: props.tickFormatter
+        tickFormatter: props.tickFormatter,
+        niceTicks: props.niceTicks
     }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](YAxisImpl, props));
 };
 var YAxis = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["memo"](YAxisSettingsDispatcher, __TURBOPACK__imported__module__$5b$project$5d2f$OneDrive$2fc1$rea__de__Trabalho$2f$temp$2d$tracker$2f$node_modules$2f$recharts$2f$es6$2f$util$2f$axisPropsAreEqual$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["axisPropsAreEqual"]);
+// @ts-expect-error we need to set the displayName for debugging purposes
 YAxis.displayName = 'YAxis';
 }),
 "[project]/OneDrive/Área de Trabalho/temp-tracker/node_modules/recharts/es6/cartesian/CartesianGrid.js [app-client] (ecmascript)", ((__turbopack_context__) => {
